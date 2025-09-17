@@ -1,12 +1,13 @@
 package main
 
 import (
-	"context"
 	"os"
 	"os/signal"
 	"syscall"
 	test_task_EM "wb-task-L0"
+	"wb-task-L0/pkg/handler"
 	"wb-task-L0/pkg/repository"
+	"wb-task-L0/pkg/service"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
@@ -38,7 +39,7 @@ func main() {
 	}
 
 	repos := repository.NewRepository(db)
-	services := service.NewServices(repos)
+	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
 
 	srv := new(test_task_EM.Server)
@@ -56,13 +57,14 @@ func main() {
 
 	logrus.Println("Shutting down server...")
 
-	if err := srv.Shutdown(context.Background()); err != nil {
-		logrus.Fatalf("error occured while shutting down server: %s", err.Error())
+	sqlDB, err := db.DB() // получить *sql.DB из *gorm.DB
+	if err != nil {
+		logrus.Fatalf("failed to get sql.DB: %s", err.Error())
+	}
+	if err := sqlDB.Close(); err != nil {
+		logrus.Fatalf("error closing database: %s", err.Error())
 	}
 
-	if err := db.Close(); err != nil {
-		logrus.Fatalf("error occured while closing db: %s", err.Error())
-	}
 }
 
 func initConfig() error {

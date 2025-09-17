@@ -12,15 +12,15 @@ type Repository struct {
 }
 
 type Subscription interface {
-	Create(subscription models.Subscription) (models.Subscription, error)
+	Create(subscription *models.Subscription) (uuid.UUID, error)
 	GetAll() ([]models.Subscription, error)
-	GetByID(id string) (models.Subscription, error)
+	GetByID(id string) (*models.Subscription, error)
 	Delete(id string) error
 	GetTotalCost(userID *uuid.UUID, serviceName *string, startDate, endDate time.Time) (int, error)
 }
 
 func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{
-		Subscription: NewSubscriptionRepo{db},
+		Subscription: NewSubscriptionRepo(db),
 	}
 }

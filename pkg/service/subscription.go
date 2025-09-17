@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/google/uuid"
 	"time"
+	"wb-task-L0/pkg/models"
 	"wb-task-L0/pkg/repository"
 )
 
@@ -14,21 +15,50 @@ func NewSubscriptionService(repo repository.Subscription) *SubscriptionService {
 	return &SubscriptionService{repo: repo}
 }
 
-func (s *SubscriptionService) Create() error {}
-
-func (s *SubscriptionService) GetAll() ([]Subscription, error) {}
-
-func (s *SubscriptionService) GetByID() {}
-
-func (s *SubscriptionService) Delete(ID string) error {}
-
-// pkg/service/subscription.go
-func (s *SubscriptionService) GetTotalCost(userIDStr, serviceName, startStr, endStr string) (int, error) {
-	start, err := time.Parse("2006-01-02", startStr)
+func (s *SubscriptionService) Create(subscription *models.Subscription) (*models.Subscription, error) {
+	uid, err := s.repo.Create(subscription)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	end, err := time.Parse("2006-01-02", endStr)
+	subscription.ID = uid
+	return subscription, nil
+}
+
+func (s *SubscriptionService) GetAll() ([]models.Subscription, error) {
+	return s.repo.GetAll()
+}
+
+func (s *SubscriptionService) GetByID(id string) (*models.Subscription, error) {
+	return s.repo.GetByID(id)
+}
+
+func (s *SubscriptionService) Delete(id string) error {
+	return s.repo.Delete(id)
+}
+
+// parseDateRange парсит даты формата "DD.MM.YYYY" и возвращает начало и конец дня
+func parseDateRange(startStr, endStr string) (time.Time, time.Time, error) {
+	const layout = "02.01.2006" // формат "день.месяц.год"
+
+	start, err := time.Parse(layout, startStr)
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+
+	end, err := time.Parse(layout, endStr)
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+
+	// Начало дня и конец дня в UTC
+	start = start.Truncate(24 * time.Hour)
+	end = end.AddDate(0, 0, 1).Add(-time.Nanosecond) // до конца дня
+
+	return start, end, nil
+}
+
+func (s *SubscriptionService) GetTotalCost(userIDStr, serviceName, startStr, endStr string) (int, error) {
+	start, end, err := parseDateRange(startStr, endStr)
 	if err != nil {
 		return 0, err
 	}

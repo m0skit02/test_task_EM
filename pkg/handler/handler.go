@@ -19,9 +19,10 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		subscription := api.Group("/subscription")
 		{
 			subscription.POST("/", h.createSubscription)
-			subscription.GET("/", h.getAllSubscription)
-			subscription.GET("/:ID", h.getByIDSubscription)
+			subscription.GET("/", h.getAllSubscriptions)
+			subscription.GET("/:ID", h.getByIDSubscriptions)
 			subscription.DELETE("/:ID", h.deleteSubscription)
+			subscription.GET("/summary", h.getSubscriptionsSummary)
 		}
 	}
 
