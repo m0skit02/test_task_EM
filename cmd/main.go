@@ -6,7 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 	test_task_EM "wb-task-L0"
-	"wb-task-L0/internal/repository"
+	"wb-task-L0/pkg/repository"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"

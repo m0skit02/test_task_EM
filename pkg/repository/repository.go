@@ -1,8 +1,10 @@
 package repository
 
 import (
+	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"wb-task-L0/internal/models"
+	"time"
+	"wb-task-L0/pkg/models"
 )
 
 type Repository struct {
@@ -14,6 +16,7 @@ type Subscription interface {
 	GetAll() ([]models.Subscription, error)
 	GetByID(id string) (models.Subscription, error)
 	Delete(id string) error
+	GetTotalCost(userID *uuid.UUID, serviceName *string, startDate, endDate time.Time) (int, error)
 }
 
 func NewRepository(db *gorm.DB) *Repository {
