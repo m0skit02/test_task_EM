@@ -6,6 +6,17 @@ import (
 	"wb-task-L0/pkg/models"
 )
 
+// @Summary Create Subscription
+// @Tags Subscription
+// @Description Create a new subscription
+// @ID create-subscription
+// @Accept json
+// @Produce json
+// @Param input body models.Subscription true "Subscription Input"
+// @Success 200 {object} map[string]string "returns subscription ID"
+// @Failure 400 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /api/subscription/ [post]
 func (h *Handler) createSubscription(c *gin.Context) {
 	var input models.Subscription
 	if err := c.BindJSON(&input); err != nil {
@@ -24,7 +35,15 @@ func (h *Handler) createSubscription(c *gin.Context) {
 	})
 }
 
-// GET /subscriptions
+// @Summary Get All Subscriptions
+// @Tags Subscription
+// @Description Get all subscriptions
+// @ID get-all-subscriptions
+// @Accept json
+// @Produce json
+// @Success 200 {object} []models.Subscription
+// @Failure 500 {object} errorResponse
+// @Router /api/subscription/ [get]
 func (h *Handler) getAllSubscriptions(c *gin.Context) {
 	subs, err := h.services.Subscription.GetAll()
 	if err != nil {
@@ -37,7 +56,17 @@ func (h *Handler) getAllSubscriptions(c *gin.Context) {
 	})
 }
 
-// GET /subscriptions/:id
+// @Summary Get Subscription by ID
+// @Tags Subscription
+// @Description Get subscription by its ID
+// @ID get-subscription-by-id
+// @Accept json
+// @Produce json
+// @Param id path string true "Subscription ID"
+// @Success 200 {object} models.Subscription
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /api/subscription/{id} [get]
 func (h *Handler) getByIDSubscriptions(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -54,7 +83,17 @@ func (h *Handler) getByIDSubscriptions(c *gin.Context) {
 	c.JSON(http.StatusOK, sub)
 }
 
-// DELETE /subscriptions/:id
+// @Summary Delete Subscription
+// @Tags Subscription
+// @Description Delete a subscription by its ID
+// @ID delete-subscription
+// @Accept json
+// @Produce json
+// @Param id path string true "Subscription ID"
+// @Success 200 {object} statusResponse
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /api/subscription/{id} [delete]
 func (h *Handler) deleteSubscription(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -73,6 +112,20 @@ func (h *Handler) deleteSubscription(c *gin.Context) {
 	})
 }
 
+// @Summary Get Subscriptions Summary
+// @Tags Subscription
+// @Description Get total cost summary of subscriptions with optional filters
+// @ID get-subscriptions-summary
+// @Accept json
+// @Produce json
+// @Param user_id query string false "User ID"
+// @Param service_name query string false "Service Name"
+// @Param start query string true "Start date in format DD.MM.YYYY"
+// @Param end query string true "End date in format DD.MM.YYYY"
+// @Success 200 {object} map[string]interface{} "total_cost and currency"
+// @Failure 400 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /api/subscription/summary [get]
 func (h *Handler) getSubscriptionsSummary(c *gin.Context) {
 	userID := c.Query("user_id")
 	serviceName := c.Query("service_name")
