@@ -1,19 +1,37 @@
-FROM golang:1.14-buster
+# -------------------------------
+# Stage 1: Builder
+# -------------------------------
+FROM golang:1.24.5 AS builder
 
-RUN go version
-ENV GOPATH=/
+WORKDIR /app
 
-COPY ./ ./
-
-# install psql
-RUN apt-get update
-RUN apt-get -y install postgresql-client
-
-# make wait-for-postgres.sh executable
-RUN chmod +x wait-for-postgres.sh
-
-# build go app
+# Кэшируем зависимости
+COPY go.mod go.sum ./
 RUN go mod download
-RUN go build -o todo-app ./cmd/main.go
 
-CMD ["./todo-app"]
+# Копируем весь проект
+COPY . .
+
+# Собираем бинарник
+RUN go build -o main ./cmd/main.go
+
+# -------------------------------
+# Stage 2: Runtime
+# -------------------------------
+FROM debian:bookworm-slim
+
+# Рабочая директория
+WORKDIR /root/
+
+# Копируем бинарник из builder
+COPY --from=builder /app/main .
+
+# Копируем конфиг и .env внутрь контейнера
+COPY configs /root/configs
+COPY .env /root/.env
+
+
+ENV CONFIG_FILE=/root/configs/config
+
+# Запуск приложения
+CMD ["./main"]

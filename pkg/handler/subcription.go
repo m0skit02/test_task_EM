@@ -3,7 +3,7 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"wb-task-L0/pkg/models"
+	"wb-task-EM/pkg/models"
 )
 
 // @Summary Create Subscription
@@ -16,7 +16,7 @@ import (
 // @Success 200 {object} map[string]string "returns subscription ID"
 // @Failure 400 {object} errorResponse
 // @Failure 500 {object} errorResponse
-// @Router /api/subscription/ [post]
+// @Router /subscription [post]
 func (h *Handler) createSubscription(c *gin.Context) {
 	var input models.Subscription
 	if err := c.BindJSON(&input); err != nil {
@@ -43,7 +43,7 @@ func (h *Handler) createSubscription(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} []models.Subscription
 // @Failure 500 {object} errorResponse
-// @Router /api/subscription/ [get]
+// @Router /subscription [get]
 func (h *Handler) getAllSubscriptions(c *gin.Context) {
 	subs, err := h.services.Subscription.GetAll()
 	if err != nil {
@@ -66,7 +66,7 @@ func (h *Handler) getAllSubscriptions(c *gin.Context) {
 // @Success 200 {object} models.Subscription
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
-// @Router /api/subscription/{id} [get]
+// @Router /subscription/{id} [get]
 func (h *Handler) getByIDSubscriptions(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -93,7 +93,7 @@ func (h *Handler) getByIDSubscriptions(c *gin.Context) {
 // @Success 200 {object} statusResponse
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
-// @Router /api/subscription/{id} [delete]
+// @Router /subscription/{id} [delete]
 func (h *Handler) deleteSubscription(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -125,7 +125,7 @@ func (h *Handler) deleteSubscription(c *gin.Context) {
 // @Success 200 {object} map[string]interface{} "total_cost and currency"
 // @Failure 400 {object} errorResponse
 // @Failure 500 {object} errorResponse
-// @Router /api/subscription/summary [get]
+// @Router /subscription/summary [get]
 func (h *Handler) getSubscriptionsSummary(c *gin.Context) {
 	userID := c.Query("user_id")
 	serviceName := c.Query("service_name")

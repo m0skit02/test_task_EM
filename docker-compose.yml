@@ -1,24 +1,51 @@
-version: '3.8'
+version: "3.9"
 
 services:
-  todo-app:
-    build: ./
-    command: ./wait-for-postgres.sh db ./todo-app
+  db:
+    image: postgres:15
+    container_name: test_task_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: postgres
     ports:
-      - 8000:8000
+      - "5436:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - test_task_network
+
+  migrations:
+    image: migrate/migrate
+    container_name: test_task_migrations
     depends_on:
       - db
-    environment:
-      - DB_PASSWORD=qwerty
-
-  db:
-    restart: always
-    image: postgres:latest
     volumes:
-      - ./.database/postgres/data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=1234
-      - POSTGRES_DB=subscriptions   # ← база создаётся автоматически
+      - ./migration:/migrations
+    command: [
+      "-path", "/migrations",
+      "-database", "postgres://postgres:1234@db:5432/postgres?sslmode=disable",
+      "up"
+    ]
+    networks:
+      - test_task_network
+
+  app:
+    build: .
+    container_name: test_task_app
+    depends_on:
+      - migrations
     ports:
-        - 5436:5432
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - ./configs:/root/configs
+    networks:
+      - test_task_network
+
+volumes:
+  db_data:
+
+networks:
+  test_task_network:

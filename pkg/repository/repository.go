@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"time"
-	"wb-task-L0/pkg/models"
+	"wb-task-EM/pkg/models"
 )
 
 type Repository struct {

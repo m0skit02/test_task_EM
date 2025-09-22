@@ -4,10 +4,10 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	test_task_EM "wb-task-L0"
-	"wb-task-L0/pkg/handler"
-	"wb-task-L0/pkg/repository"
-	"wb-task-L0/pkg/service"
+	test_task_EM "wb-task-EM"
+	"wb-task-EM/pkg/handler"
+	"wb-task-EM/pkg/repository"
+	"wb-task-EM/pkg/service"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
@@ -19,7 +19,7 @@ import (
 // @version 1.0
 // @description API Server for subscription management
 // @host localhost:8080
-// @BasePath /
+// @BasePath /api
 
 func main() {
 	logrus.SetFormatter(new(logrus.JSONFormatter))
@@ -63,7 +63,7 @@ func main() {
 
 	logrus.Println("Shutting down server...")
 
-	sqlDB, err := db.DB() // получить *sql.DB из *gorm.DB
+	sqlDB, err := db.DB()
 	if err != nil {
 		logrus.Fatalf("failed to get sql.DB: %s", err.Error())
 	}

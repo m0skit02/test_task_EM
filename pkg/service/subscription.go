@@ -3,8 +3,8 @@ package service
 import (
 	"github.com/google/uuid"
 	"time"
-	"wb-task-L0/pkg/models"
-	"wb-task-L0/pkg/repository"
+	"wb-task-EM/pkg/models"
+	"wb-task-EM/pkg/repository"
 )
 
 type SubscriptionService struct {
@@ -36,9 +36,8 @@ func (s *SubscriptionService) Delete(id string) error {
 	return s.repo.Delete(id)
 }
 
-// parseDateRange парсит даты формата "DD.MM.YYYY" и возвращает начало и конец дня
 func parseDateRange(startStr, endStr string) (time.Time, time.Time, error) {
-	const layout = "02.01.2006" // формат "день.месяц.год"
+	const layout = "02.01.2006"
 
 	start, err := time.Parse(layout, startStr)
 	if err != nil {
@@ -50,7 +49,6 @@ func parseDateRange(startStr, endStr string) (time.Time, time.Time, error) {
 		return time.Time{}, time.Time{}, err
 	}
 
-	// Начало дня и конец дня в UTC
 	start = start.Truncate(24 * time.Hour)
 	end = end.AddDate(0, 0, 1).Add(-time.Nanosecond) // до конца дня
 

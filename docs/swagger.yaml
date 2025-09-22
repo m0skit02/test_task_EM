@@ -1,9 +1,200 @@
-basePath: /
+basePath: /api
+definitions:
+  handler.errorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  handler.statusResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  models.Subscription:
+    properties:
+      end_date:
+        type: string
+      id:
+        type: string
+      price:
+        type: integer
+      service_name:
+        type: string
+      start_date:
+        type: string
+      user_id:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
   description: API Server for subscription management
   title: Subscription API
   version: "1.0"
-paths: {}
+paths:
+  /subscription:
+    get:
+      consumes:
+      - application/json
+      description: Get all subscriptions
+      operationId: get-all-subscriptions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Subscription'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get All Subscriptions
+      tags:
+      - Subscription
+    post:
+      consumes:
+      - application/json
+      description: Create a new subscription
+      operationId: create-subscription
+      parameters:
+      - description: Subscription Input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Subscription'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: returns subscription ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Create Subscription
+      tags:
+      - Subscription
+  /subscription/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a subscription by its ID
+      operationId: delete-subscription
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Delete Subscription
+      tags:
+      - Subscription
+    get:
+      consumes:
+      - application/json
+      description: Get subscription by its ID
+      operationId: get-subscription-by-id
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Subscription'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get Subscription by ID
+      tags:
+      - Subscription
+  /subscription/summary:
+    get:
+      consumes:
+      - application/json
+      description: Get total cost summary of subscriptions with optional filters
+      operationId: get-subscriptions-summary
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        type: string
+      - description: Service Name
+        in: query
+        name: service_name
+        type: string
+      - description: Start date in format DD.MM.YYYY
+        in: query
+        name: start
+        required: true
+        type: string
+      - description: End date in format DD.MM.YYYY
+        in: query
+        name: end
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: total_cost and currency
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get Subscriptions Summary
+      tags:
+      - Subscription
 swagger: "2.0"

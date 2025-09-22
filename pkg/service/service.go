@@ -1,8 +1,8 @@
 package service
 
 import (
-	"wb-task-L0/pkg/models"
-	"wb-task-L0/pkg/repository"
+	"wb-task-EM/pkg/models"
+	"wb-task-EM/pkg/repository"
 )
 
 type Subscription interface {

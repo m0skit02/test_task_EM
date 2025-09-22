@@ -3,9 +3,11 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 
+	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
-	"github.com/swaggo/gin-swagger/pkg/swaggerFiles"
-	"wb-task-L0/pkg/service"
+	_ "wb-task-EM/docs"
+
+	"wb-task-EM/pkg/service"
 )
 
 type Handler struct {

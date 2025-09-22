@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"time"
-	"wb-task-L0/pkg/models"
+	"wb-task-EM/pkg/models"
 )
 
 type SubscriptionRepo struct {
@@ -58,34 +58,29 @@ func (r *SubscriptionRepo) Delete(id string) error {
 func (r *SubscriptionRepo) GetTotalCost(userID *uuid.UUID, serviceName *string, startDate, endDate time.Time) (int, error) {
 	var total int64
 
-	// Подзапрос для вычисления пересекающегося периода
-	subQuery := r.db.Model(&models.Subscription{}).
-		Select(`
-			price,
-			GREATEST(start_date, ?) AS greatest_gstart,
-			LEAST(COALESCE(end_date, ?), ?) AS least_lend
-		`, startDate, endDate, endDate).
-		Where("start_date <= ? AND (end_date IS NULL OR end_date >= ?)", endDate, startDate)
-
-	// Фильтры
-	if userID != nil {
-		subQuery = subQuery.Where("user_id = ?", *userID)
-	}
-	if serviceName != nil {
-		subQuery = subQuery.Where("service_name = ?", *serviceName)
-	}
-
-	// Основной запрос: суммируем цену с учетом количества месяцев пересечения
 	sql := `
 	SELECT COALESCE(SUM(price * (
-		(DATE_PART('year', least_lend) - DATE_PART('year', greatest_gstart)) * 12
-		+ (DATE_PART('month', least_lend) - DATE_PART('month', greatest_gstart)) + 1
+		DATE_PART('year', AGE(LEAST(COALESCE(end_date, $1), $2), GREATEST(start_date, $3))) * 12 +
+		DATE_PART('month', AGE(LEAST(COALESCE(end_date, $1), $2), GREATEST(start_date, $3)))
 	)), 0)::bigint AS total
-	FROM (?) AS s
-	WHERE greatest_gstart <= least_lend
+	FROM subscriptions
+	WHERE ($4::uuid IS NULL OR user_id = $4)
+	  AND ($5::text IS NULL OR service_name = $5)
+	  AND start_date <= $6
+	  AND (end_date IS NULL OR end_date >= $7)
 	`
 
-	if err := r.db.Raw(sql, subQuery).Scan(&total).Error; err != nil {
+	args := []interface{}{
+		endDate,
+		endDate,
+		startDate,
+		userID,
+		serviceName,
+		endDate,
+		startDate,
+	}
+
+	if err := r.db.Raw(sql, args...).Scan(&total).Error; err != nil {
 		return 0, err
 	}
 
